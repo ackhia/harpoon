@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/ackhia/harpoon#readme",
   "dependencies": {
+    "dotenv": "^6.0.0",
     "mongodb": "^3.0.10",
     "npm": "^6.1.0",
     "request": "^2.87.0"

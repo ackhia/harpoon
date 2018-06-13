@@ -3,7 +3,7 @@ var request = require('request');
 
 const baseUrl = 'https://api.binance.com'
 
-export function getSymbols() {
+export default {getSymbols: function() {
 	return new Promise(function(resolve, reject) {
 		request.get({url: baseUrl + '/api/v1/exchangeInfo', 
 		json: true}, 
@@ -19,7 +19,6 @@ export function getSymbols() {
 											.map(s =>  s.baseAsset + '/' + s.quoteAsset )
 				resolve(btcSymbols)
 		   }
-	   }
-)
-	});
-}
+	   })
+	})
+}}

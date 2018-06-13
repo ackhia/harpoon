@@ -1,8 +1,21 @@
 
+import dotenv from 'dotenv'
 import { getDb, close } from './db'
-import { getSymbols } from './providers/binance'
+import binance from './providers/binance'
+import debug from './providers/debug'
 
-const providers = [{ name: "binance", symbolsMethod: getSymbols }]
+dotenv.config()
+
+function getProviders() {
+	let providers
+	if(process.env.DEBUG == "TRUE") 
+		providers = [{ name: "debug", symbolsMethod: debug.getSymbols }]
+	else
+		providers = [{ name: "binance", symbolsMethod: binance.getSymbols }]
+
+	return providers
+}
+
 function getNewPairs(exchangePairs, currentPairs) {
 	let newPairs = exchangePairs.filter(p => currentPairs.indexOf(p) === -1)
 
@@ -15,6 +28,7 @@ function getNewPairs(exchangePairs, currentPairs) {
 async function main() {
 	let db = await getDb()
 	const exchanges = db.collection('exchanges')
+	let providers = getProviders()
 
 	for(const p of providers) {
 		let doc = await exchanges.findOne({name: p.name})
