@@ -3,8 +3,13 @@ import { getDb, close } from './db'
 import { getSymbols } from './providers/binance'
 
 const providers = [{ name: "binance", symbolsMethod: getSymbols }]
-function getNewPairs(newPairs, currentPairs) {
-	console.log(newPairs, currentPairs)
+function getNewPairs(exchangePairs, currentPairs) {
+	let newPairs = exchangePairs.filter(p => currentPairs.indexOf(p) === -1)
+
+	if(newPairs.length == 0 )
+		console.log("No new pairs found")
+	else
+		console.log(newPairs)
 }
 
 async function main() {
@@ -20,8 +25,8 @@ async function main() {
 		else {
 			await exchanges.insert({name: p.name, symbols: symbols })
 		}
-		close()
 	}
+	close()
 }
 
 main()
