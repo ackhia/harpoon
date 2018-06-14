@@ -25,25 +25,32 @@ async function logNewPairs(db, exchange, newPairs) {
 }
 
 async function main() {
-	let db = await getDb()
-	const exchanges = db.collection('exchanges')
-	let providers = getProviders()
+	try {
+		let db = await getDb()
+		const exchanges = db.collection('exchanges')
+		let providers = getProviders()
 
-	for(const p of providers) {
-		let doc = await exchanges.findOne({name: p.name})
-		let symbols = await p.symbolsMethod()
-		
-		if(doc) {
-			let newPairs = getNewPairs(symbols, doc.symbols)
+		for(const p of providers) {
+			let doc = await exchanges.findOne({name: p.name})
+			let symbols = await p.symbolsMethod()
+			
+			if(doc) {
+				let newPairs = getNewPairs(symbols, doc.symbols)
 
-			logNewPairs(db, p.name, newPairs)
-			await exchanges.update({name: p.name}, {name: p.name, symbols: symbols })
-		}
-		else {
-			await exchanges.insert({name: p.name, symbols: symbols })
-		}
+				logNewPairs(db, p.name, newPairs)
+				await exchanges.update({name: p.name}, {name: p.name, symbols: symbols })
+			}
+			else {
+				await exchanges.insert({name: p.name, symbols: symbols })
+			}
+		}		
 	}
-	close()
+	catch(err) {
+		console.log("Error occured: ", err)
+	}
+	finally {
+		close()
+	}
 }
 
 main()

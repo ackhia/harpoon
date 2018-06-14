@@ -9,10 +9,8 @@ export default {getSymbols: function() {
 		json: true}, 
 		(err, res, data) => {
 		   if (err) {
-			   console.log('Error:', err)
 			   reject(err)
 		   } else if (res.statusCode !== 200) {
-			   console.log('Status:', res.statusCode);
 			   reject('Status:' + res.statusCode)
 		   } else {
 			   let btcSymbols = data.symbols.filter(s => s.quoteAsset == 'BTC')
