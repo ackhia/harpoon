@@ -18,11 +18,14 @@ function getProviders() {
 
 function getNewPairs(exchangePairs, currentPairs) {
 	let newPairs = exchangePairs.filter(p => currentPairs.indexOf(p) === -1)
+	return newPairs
+}
 
-	if(newPairs.length == 0 )
-		console.log("No new pairs found")
-	else
-		console.log(newPairs)
+async function logNewPairs(db, exchange, newPairs) {
+	let timestamp = Math.round((new Date()).getTime() / 1000);
+	for(const p of newPairs) {
+		await db.collection('new-pairs').insert({exchange: exchange, pair: p, timestamp: timestamp})	
+	}
 }
 
 async function main() {
@@ -33,8 +36,13 @@ async function main() {
 	for(const p of providers) {
 		let doc = await exchanges.findOne({name: p.name})
 		let symbols = await p.symbolsMethod()
+		
 		if(doc) {
-			getNewPairs(symbols, doc.symbols)
+			let newPairs = getNewPairs(symbols, doc.symbols)
+			console.log(newPairs)
+
+			logNewPairs(db, p.name, newPairs)
+			await exchanges.update({name: p.name}, {name: p.name, symbols: symbols })
 		}
 		else {
 			await exchanges.insert({name: p.name, symbols: symbols })
