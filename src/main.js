@@ -1,17 +1,13 @@
 
-import dotenv from 'dotenv'
 import { getDb, close } from './db'
 import binance from './providers/binance'
+import bithumb from './providers/bithumb'
 import debug from './providers/debug'
 
-dotenv.config()
-
 function getProviders() {
-	let providers
-	if(process.env.DEBUG == "TRUE") 
-		providers = [{ name: "debug", symbolsMethod: debug.getSymbols }]
-	else
-		providers = [{ name: "binance", symbolsMethod: binance.getSymbols }]
+	let providers = [ { name: "binance", symbolsMethod: binance.getSymbols },
+					  { name: "bithumb", symbolsMethod: bithumb.getSymbols },
+					  { name: "debug", symbolsMethod: debug.getSymbols }]
 
 	return providers
 }
@@ -39,7 +35,6 @@ async function main() {
 		
 		if(doc) {
 			let newPairs = getNewPairs(symbols, doc.symbols)
-			console.log(newPairs)
 
 			logNewPairs(db, p.name, newPairs)
 			await exchanges.update({name: p.name}, {name: p.name, symbols: symbols })
@@ -52,3 +47,8 @@ async function main() {
 }
 
 main()
+
+/*(async () => {
+	console.log(await bithumb.getSymbols())
+})()*/
+
