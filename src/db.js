@@ -2,7 +2,7 @@
 import { MongoClient } from 'mongodb'
 import assert  from 'assert'
 
-const url = 'mongodb://root:example@mongo:27017'
+const url = 'mongodb://root:example@mongo:27017/?connectTimeoutMS=1000&socketTimeoutMS=1000'
 
 const dbName = 'harpoon'
 let client

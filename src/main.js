@@ -4,6 +4,10 @@ import binance from './providers/binance'
 import bithumb from './providers/bithumb'
 import debug from './providers/debug'
 
+function getTimestamp() {
+	return Math.round((new Date()).getTime() / 1000)
+}
+
 function getProviders() {
 	let providers = [ { name: "binance", symbolsMethod: binance.getSymbols },
 					  { name: "bithumb", symbolsMethod: bithumb.getSymbols },
@@ -18,7 +22,7 @@ function getNewPairs(exchangePairs, currentPairs) {
 }
 
 async function logNewPairs(db, exchange, newPairs) {
-	let timestamp = Math.round((new Date()).getTime() / 1000);
+	let timestamp = getTimestamp()
 	for(const p of newPairs) {
 		await db.collection('new-pairs').insert({exchange: exchange, pair: p, timestamp: timestamp})	
 	}
@@ -26,6 +30,7 @@ async function logNewPairs(db, exchange, newPairs) {
 
 async function main() {
 	try {
+		console.log("Running v1.1. Timestamp " + getTimestamp())
 		let db = await getDb()
 		const exchanges = db.collection('exchanges')
 		let providers = getProviders()
@@ -37,19 +42,20 @@ async function main() {
 			if(doc) {
 				let newPairs = getNewPairs(symbols, doc.symbols)
 
-				logNewPairs(db, p.name, newPairs)
+				await logNewPairs(db, p.name, newPairs)
 				await exchanges.update({name: p.name}, {name: p.name, symbols: symbols })
 			}
 			else {
 				await exchanges.insert({name: p.name, symbols: symbols })
 			}
-		}		
+		}
 	}
 	catch(err) {
 		console.log("Error occured: ", err)
 	}
 	finally {
 		close()
+		process.exit();
 	}
 }
 
